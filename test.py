@@ -2,9 +2,9 @@ import random
 from fpdf import FPDF
 
 def create_function():
-    perem = ['x_1', '!x_1', 'x_2', '!x_2', 'x_3', '!x_3']
+    perem = ['x_1', '¬x_1', 'x_2', '¬x_2', 'x_3', '¬x_3']
     random.shuffle(perem)
-    oper =  ['V', '/\\', '(+)', '->', '|', '\\|/']
+    oper =  ['V', '/\\', '(+)', '->', '|', '\\|/', '~']
     return '[(' + perem[0] +' '+ random.choice(oper) +' '+ perem[1]+') ' + random.choice(oper) + ' (' + perem[2] +' '+ random.choice(oper) +' '+ perem[3] +')] ' + random.choice(oper) + ' ' + perem[4]
     
 def text_of_task_1():
@@ -14,7 +14,7 @@ def text_of_task_1():
         f = create_function()
     task1 += f 
     return task1
-    
+
 def text_of_task_2():
     list=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     my_list =sorted(random.sample(list, k=10))
