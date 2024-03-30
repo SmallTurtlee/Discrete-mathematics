@@ -1,14 +1,15 @@
 import random
 from fpdf import FPDF
+import matplotlib.pyplot as plt
 
 def create_function():
-    perem = ['x_1', '¬x_1', 'x_2', '¬x_2', 'x_3', '¬x_3']
+    perem = ['x_1', '\\overline{x_1}', 'x_2', '\\overline{x_2}', 'x_3', '\\overline{x_3}']
     random.shuffle(perem)
-    oper =  ['V', '/\\', '(+)', '->', '|', '\\|/', '~']
-    return '[(' + perem[0] +' '+ random.choice(oper) +' '+ perem[1]+') ' + random.choice(oper) + ' (' + perem[2] +' '+ random.choice(oper) +' '+ perem[3] +')] ' + random.choice(oper) + ' ' + perem[4]
+    oper =  ['\\vee', '\\wedge', '\\oplus', '\\rightarrow', '\\mid', '\\downarrow', '\\sim']
+    return '[(' + perem[0] +' '+ random.choice(oper) +' '+ perem[1]+') ' + random.choice(oper) + ' (' + perem[2] +' '+ random.choice(oper) +' '+ perem[3] +')] ' + random.choice(oper) + ' ' + perem[4] + '$'
     
 def text_of_task_1():
-    task1 = 'F(x_1, x_2, x_3) = '
+    task1 = '$f(x_1, x_2, x_3) = '
     f = create_function()
     while f.find('x_1') == -1 or f.find('x_2') == -1 or f.find('x_3') == -1:
         f = create_function()
@@ -18,11 +19,28 @@ def text_of_task_1():
 def text_of_task_2():
     list=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     my_list =sorted(random.sample(list, k=10))
-    func2 = 'F(x_1, x_2, x_3, x_4) = V_1(' 
+    func2 = '$F(x_1, x_2, x_3, x_4) = V_1(' 
     for i in my_list:
         func2 += str(i) + ', '
-    task2 = func2[:-2] + ')'
+    task2 = func2[:-2] + ')$'
     return task2
+
+def formula(i, nn):
+    if nn==1: tex = text_of_task_1()
+    else: tex = text_of_task_2()
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.set_axis_off()
+    t = ax.text(0.5, 0.5, tex,
+        horizontalalignment='center',
+        verticalalignment='center',
+        fontsize=3, color='black')
+    ax.figure.canvas.draw()
+    bbox = t.get_window_extent()
+    fig.set_size_inches(bbox.width/80,bbox.height/80) # dpi=80
+    plt.savefig('test'+str(i)+'.png', dpi=300)
+    plt.close(fig)
+
 
 pdf = FPDF()
 pdf.add_font('times', '', 'timesnrcyrmt.ttf', uni=True)
@@ -34,11 +52,14 @@ for i in range(num):
     pdf.set_font("timesB", size=12)
     pdf.cell(0, 5,'Дискретная математика. РК1 "Теория булевых функций".           Вариант №' + str(i+1),ln=1, align="L")
     pdf.set_font("times", size=12)
-    pdf.cell(0, 10, '1. Используя соответствующую методику, аналитически привести заданную булеву функцию к ' + random.choice(['Д', 'К']) + 'НФ.', ln=1)
-    pdf.cell(0, 5, text_of_task_1(), ln=1, align="C")
+    pdf.cell(0, 5, '1. Используя соответствующую методику, аналитически привести заданную булеву функцию к ' + random.choice(['Д', 'К']) + 'НФ.', ln=1)
+    formula(i*2, 1)
+    pdf.image("test"+str(i*2)+".png")
     pdf.cell(0, 5, '2. Построить таблицу истинности и записать СДНФ заданной булевой функции. Получить ', ln=1)
     pdf.cell(0, 5, random.choice(['все её минимальные', 'её минимальную']) + ' ДНФ методом карт Карно.', ln=1)
-    pdf.cell(0, 5, text_of_task_2(), ln=1, align="C")
-    if i % 5 != 4: pdf.cell(0, 20, "_"*1000, ln=1, align="C")
-    else: pdf.cell(0, 10, " " * 1000, ln=1)
+    formula(i*2+1, 2)
+    pdf.image("test"+str(i*2+1)+".png")
+    if i % 5 != 4: pdf.cell(0, 15, "_"*1000, ln=1, align="C")
+    else: pdf.cell(0, 5, " " * 1000, ln=1)
+
 pdf.output("demo_rk1.pdf")
