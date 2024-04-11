@@ -1,6 +1,7 @@
 import random
 from fpdf import FPDF
 import matplotlib.pyplot as plt
+import os
 
 def create_function():
     perem = ['x_1', '\\overline{x_1}', 'x_2', '\\overline{x_2}', 'x_3', '\\overline{x_3}']
@@ -40,8 +41,8 @@ def formula(i, nn):
         fontsize=3, color='black')
     ax.figure.canvas.draw()
     bbox = t.get_window_extent()
-    fig.set_size_inches(bbox.width/80,bbox.height/80) # dpi=80
-    plt.savefig('test'+str(i)+'.png', dpi=300)
+    fig.set_size_inches(bbox.width/80,bbox.height/80) # dpi=1000
+    plt.savefig(os.getcwd()+'/pictures/test'+str(i)+'.png', dpi=1000)
     plt.close(fig)
 
 def get_first_answer(text, i):
@@ -61,15 +62,24 @@ def get_first_answer(text, i):
     answdnf='$'
     list_of_kon=['(\\overline{x_1} \\vee \\overline{x_2} \\vee \\overline{x_3})', '(\\overline{x_1} \\vee \\overline{x_2} \\vee x_3)', '(\\overline{x_1} \\vee x_2 \\vee \\overline{x_3})', '(\\overline{x_1} \\vee x_2  \\vee x_3)', '(x_1 \\vee \\overline{x_2} \\vee \\overline{x_3})', '(x_1 \\vee \\overline{x_2}  \\vee x_3)', '(x_1 \\vee x_2 \\vee \\overline{x_3})', '(x_1 \\vee x_2 \\vee x_3)']
     answknf='$'
+    sum = 0
     for j in range(8):
-        if list[-1][j] == 1: answdnf += list_of_dis[j] + '\\vee '
-        else: answknf += list_of_kon[j] + ' '
+        if list[-1][j] == 1: 
+            answdnf += list_of_dis[j] + '\\vee '
+            sum+=1
+        else: answknf += list_of_kon[7-j] + '  '
     pdfanswer.cell(0,5,"СДНФ:", ln=1)
-    formula(i+2,answdnf[:-5]+'$')
-    pdfanswer.image("test"+str(i+2)+".png")
+    if sum==0: pdfanswer.cell(0,5,"0", ln =1)
+    elif sum==8: pdfanswer.cell(0,5,"1", ln =1)
+    else:
+        formula(i+2,answdnf[:-5]+'$')
+        pdfanswer.image(os.getcwd()+"/pictures/test"+str(i+2)+".png", h=10)
     pdfanswer.cell(0,5,"СКНФ:", ln=1)
-    formula(i+3, answknf+'$')
-    pdfanswer.image("test"+str(i+3)+".png")
+    if sum==0: pdfanswer.cell(0,5,"0", ln =1)
+    elif sum==8: pdfanswer.cell(0,5,"1", ln =1)
+    else:
+        formula(i+3, answknf+'$')
+        pdfanswer.image(os.getcwd()+"/pictures/test"+str(i+3)+".png", h=7)
     
 def getlogic(n, oper, m, list):
     x=[]
@@ -110,6 +120,7 @@ def dologic(x, y, oper):
 
 pdf = FPDF()
 pdfanswer = FPDF()
+if not(os.path.exists(os.path.join(os.getcwd(), "pictures"))): os.mkdir("pictures")
 pdf.add_font('times', '', 'timesnrcyrmt.ttf', uni=True)
 pdf.add_font('timesB', '', 'timesnrcyrmt_bold.ttf', uni=True)
 pdfanswer.add_font('times', '', 'timesnrcyrmt.ttf', uni=True)
@@ -125,13 +136,13 @@ for i in range(num):
     pdf.set_font("times", size=12)
     pdf.cell(0, 5, '1. Используя соответствующую методику, аналитически привести заданную булеву функцию к ' + random.choice(['Д', 'К']) + 'НФ.', ln=1)
     formula(i*4, 1)
-    pdf.image("test"+str(i*4)+".png")
+    pdf.image(os.getcwd()+"/pictures/test"+str(i*4)+".png", w=100)
     pdf.cell(0, 5, '2. Построить таблицу истинности и записать СДНФ заданной булевой функции. Получить ', ln=1)
     pdf.cell(0, 5, random.choice(['все её минимальные', 'её минимальную']) + ' ДНФ методом карт Карно.', ln=1)
     formula(i*4+1, 2)
-    pdf.image("test"+str(i*4+1)+".png")
-    if i % 5 != 4: pdf.cell(0, 15, "_"*1000, ln=1, align="C")
-    else: pdf.cell(0, 5, " " * 1000, ln=1)
+    pdf.image(os.getcwd()+"/pictures/test"+str(i*4+1)+".png", w=100)
+    if i % 5 != 4: pdf.cell(0, 18, "_"*1000, ln=1, align="C")
+    else: pdf.cell(0, 7, " " * 1000, ln=1)
 
 pdf.output("demo_rk1.pdf")
 pdfanswer.output("answers.pdf")
